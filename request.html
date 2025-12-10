@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>PSC ขอมาจัดไป – Request เพลง</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+    body {
+        font-family: "Prompt", sans-serif;
+        background: linear-gradient(to bottom, #ffffff, #d6b3ff);
+        margin: 0;
+        padding: 0;
+        color: #3a0b5c;
+    }
+    .container {
+        max-width: 500px;
+        margin: 40px auto;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 0 20px rgba(128, 0, 128, 0.3);
+    }
+    h1 {
+        text-align: center;
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #6a0dad;
+        -webkit-text-stroke: 0.5px #000000;
+    }
+    img.cover {
+        width: 100%;
+        border-radius: 12px;
+        margin-bottom: 20px;
+    }
+    label {
+        display: block;
+        margin-top: 12px;
+        font-weight: bold;
+    }
+    input, textarea {
+        width: 100%;
+        padding: 10px;
+        margin-top: 6px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+    }
+    button {
+        width: 100%;
+        padding: 12px;
+        margin-top: 20px;
+        background: #6a0dad;
+        color: white;
+        font-size: 16px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    button:hover {
+        background: #4b0082;
+    }
+    .message {
+        text-align: center;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>PSC ขอมาจัดไป</h1>
+
+    <!-- ✅ เปลี่ยนภาพใหม่ -->
+    <img class="cover" src="jazz-meme.png" alt="ภาพปกรายการ">
+
+
+    <label>ชื่อเพลง *</label>
+    <input type="text" id="song" placeholder="ชื่อเพลง">
+
+    <label>ศิลปิน</label>
+    <input type="text" id="artist" placeholder="ชื่อศิลปิน">
+
+    <label>ชื่อผู้ขอ</label>
+    <input type="text" id="name" placeholder="ชื่อเล่น / ห้อง">
+
+    <label>หมายเหตุเพิ่มเติม</label>
+    <textarea id="note" placeholder="เช่น ขอเปิดวันศุกร์"></textarea>
+
+    <button onclick="sendRequest()">ส่งคำขอเพลง</button>
+    <div class="message" id="message"></div>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC41B-yQdt1GVY_PJwlyvC2eomKCwv_VSw",
+  authDomain: "psc-request.firebaseapp.com",
+  databaseURL: "https://psc-request-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "psc-request",
+  storageBucket: "psc-request.appspot.com",
+  messagingSenderId: "640191497174",
+  appId: "1:640191497174:web:22c6ff5b8e3278337d5a77",
+  measurementId: "G-ZZM4N9SFDT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+function sendRequest() {
+    const song = document.getElementById('song').value.trim();
+    const artist = document.getElementById('artist').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const note = document.getElementById('note').value.trim();
+    const messageEl = document.getElementById('message');
+
+    if (!song) {
+        messageEl.textContent = "กรุณากรอกชื่อเพลง";
+        messageEl.style.color = "red";
+        return;
+    }
+
+    const requestRef = db.ref('requests').push();
+    const data = {
+        song, artist, name, note,
+        createdAt: Date.now(),
+        played: false
+    };
+
+    requestRef.set(data).then(() => {
+        messageEl.textContent = "ส่งคำขอเพลงเรียบร้อยแล้ว!";
+        messageEl.style.color = "green";
+        document.getElementById('song').value = "";
+        document.getElementById('artist').value = "";
+        document.getElementById('name').value = "";
+        document.getElementById('note').value = "";
+    }).catch(() => {
+        messageEl.textContent = "เกิดข้อผิดพลาด กรุณาลองใหม่";
+        messageEl.style.color = "red";
+    });
+}
+</script>
+
+</body>
+</html>

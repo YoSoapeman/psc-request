@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>PSC Admin Panel</title>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<style>
+    body {
+        font-family: "Prompt", sans-serif;
+        background: linear-gradient(to bottom, #ffffff, #d6b3ff);
+        margin: 0;
+        padding: 0;
+        color: #3a0b5c;
+    }
+    .header {
+        background: #6a0dad;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        -webkit-text-stroke: 0.5px #000000;
+    }
+    .container {
+        padding: 20px;
+        max-width: 900px;
+        margin: auto;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 0 10px rgba(128, 0, 128, 0.2);
+    }
+    th, td {
+        padding: 10px;
+        border: 1px solid #ccc;
+        font-size: 14px;
+        -webkit-text-stroke: 0.3px #000000;
+    }
+    th {
+        background: #e6ccff;
+        color: #3a0b5c;
+    }
+    .badge {
+        padding: 4px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .badge-played {
+        background: #c8f7c5;
+        color: #0b4f1c;
+    }
+    .badge-wait {
+        background: #ffecb3;
+        color: #5d3a00;
+    }
+    .btn {
+        padding: 6px 10px;
+        font-size: 12px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        margin-right: 4px;
+        font-weight: bold;
+    }
+    .btn-played {
+        background: #c8f7c5;
+        color: #0b4f1c;
+    }
+    .btn-delete {
+        background: #ffcdd2;
+        color: #5b0008;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">PSC ขอมาจัดไป – Admin Panel</div>
+<div class="container">
+    <table>
+        <thead>
+            <tr>
+                <th>เพลง</th>
+                <th>ศิลปิน</th>
+                <th>ผู้ขอ</th>
+                <th>หมายเหตุ</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody id="requestsBody"></tbody>
+    </table>
+</div>
+
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyC41B-yQdt1GVY_PJwlyvC2eomKCwv_VSw",
+  authDomain: "psc-request.firebaseapp.com",
+  databaseURL: "https://psc-request-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "psc-request",
+  storageBucket: "psc-request.appspot.com",
+  messagingSenderId: "640191497174",
+  appId: "1:640191497174:web:22c6ff5b8e3278337d5a77",
+  measurementId: "G-ZZM4N9SFDT"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const tbody = document.getElementById("requestsBody");
+
+function renderRow(key, data) {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+        <td>${data.song}</td>
+        <td>${data.artist || "-"}</td>
+        <td>${data.name || "-"}</td>
+        <td>${data.note || "-"}</td>
+        <td>
+            <span class="badge ${data.played ? "badge-played" : "badge-wait"}">
+                ${data.played ? "เปิดแล้ว" : "รอเปิด"}
+            </span>
+        </td>
+        <td>
+            <button class="btn btn-played" onclick="togglePlayed('${key}', ${!data.played})">
+                ${data.played ? "ยกเลิก" : "ติ๊กว่าเปิดแล้ว"}
+            </button>
+            <button class="btn btn-delete" onclick="deleteRequest('${key}')">ลบ</button>
+        </td>
+    `;
+
+    return tr;
+}
+
+function togglePlayed(key, value) {
+    db.ref("requests/" + key).update({ played: value });
+}
+
+function deleteRequest(key) {
+    if (confirm("ต้องการลบคำขอนี้ใช่ไหม")) {
+        db.ref("requests/" + key).remove();
+    }
+}
+
+db.ref("requests").on("value", snapshot => {
+    tbody.innerHTML = "";
+    const data = snapshot.val();
+    if (!data) return;
+
+    Object.entries(data).forEach(([key, value]) => {
+        tbody.appendChild(renderRow(key, value));
+    });
+});
+</script>
+
+</body>
+</html>
