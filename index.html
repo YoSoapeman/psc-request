@@ -3,8 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <title>PSC ขอมาจัดไป – Request เพลง</title>
+
+<!-- Firebase -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
 <style>
     body {
         font-family: "Prompt", sans-serif;
@@ -73,9 +76,8 @@
 <div class="container">
     <h1>PSC ขอมาจัดไป</h1>
 
-    <!-- ✅ เปลี่ยนภาพใหม่ -->
+    <!-- ✅ ใช้ภาพที่คุณอัปโหลด (ต้องอยู่โฟลเดอร์เดียวกัน) -->
     <img class="cover" src="jazz-meme.png" alt="ภาพปกรายการ">
-
 
     <label>ชื่อเพลง *</label>
     <input type="text" id="song" placeholder="ชื่อเพลง">
@@ -84,10 +86,10 @@
     <input type="text" id="artist" placeholder="ชื่อศิลปิน">
 
     <label>ชื่อผู้ขอ</label>
-    <input type="text" id="name" placeholder="ชื่อเล่น / ห้อง">
+    <input type="text" id="name" placeholder="ไม่ต้องระบุชื่อจริงก็ได้">
 
-    <label>หมายเหตุเพิ่มเติม</label>
-    <textarea id="note" placeholder="เช่น ขอเปิดวันศุกร์"></textarea>
+    <label>อยากจะฝากเพลงนี้ถึงใคร?</label>
+    <textarea id="note" placeholder="เช่น น้าปุ๊กหลังวัง คนน่ารักห้อง5/3"></textarea>
 
     <button onclick="sendRequest()">ส่งคำขอเพลง</button>
     <div class="message" id="message"></div>
@@ -123,7 +125,10 @@ function sendRequest() {
 
     const requestRef = db.ref('requests').push();
     const data = {
-        song, artist, name, note,
+        song,
+        artist,
+        name,
+        note,
         createdAt: Date.now(),
         played: false
     };
@@ -131,6 +136,7 @@ function sendRequest() {
     requestRef.set(data).then(() => {
         messageEl.textContent = "ส่งคำขอเพลงเรียบร้อยแล้ว!";
         messageEl.style.color = "green";
+
         document.getElementById('song').value = "";
         document.getElementById('artist').value = "";
         document.getElementById('name').value = "";
